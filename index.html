@@ -164,9 +164,12 @@ table.dataTable tbody tr:hover{background:rgba(0,140,186,0.06)}
 
 /* responsive */
 @media (max-width:760px){
-  .search-box input{width:120px}
-  .card-list{display:grid}
-  table.dataTable{display:none}
+  table.dataTable {
+    display: block !important;
+    width: 100% !important;
+    overflow-x: auto;
+  }
+  .card-list { display: none !important; }
 }
 
 /* small animation for table rows when updated */
