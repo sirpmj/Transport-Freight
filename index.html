@@ -181,12 +181,12 @@ table.dataTable tbody tr:hover{background:rgba(0,140,186,0.06)}
 @media (max-width: 760px) {
 
   /* Header cells: allow 2-line wrap if needed */
-  table.dataTable thead th {
-    white-space: normal;   /* wrap only header */
-    font-size: 13px;
-    line-height: 1.2;
-    padding: 6px 8px;
-  }
+table.dataTable tbody td {
+    white-space: nowrap;       /* डेटा single line में रहे */
+    overflow: hidden;
+    text-overflow: ellipsis;   /* लंबा टेक्स्ट … में दिखे */
+    font-size: 12px;
+}
 
   /* Body cells: force single line always */
   table.dataTable tbody td {
@@ -361,47 +361,34 @@ function buildGenericTable($table, data, sheetName){
   }
   $table.empty();
 
-  const dt = $table.DataTable({
-  deferRender: true,
-  processing: true,
-
+ const dt = $table.DataTable({
+    deferRender: true,
+    processing: true,
     data: enhanced,
-
     columns: [
-      { data: "__priority", visible: false }, // helper column
+      { data: "__priority", visible: false },
       ...cols
     ],
-
     ordering: true,
     orderMulti: false,
-
-    // 🔥🔥 FIX: PRIORITY ROWS ALWAYS ON TOP
-    orderFixed: {
-      pre: [[0, "desc"]]
-    },
-
-    // normal sorting (FROM column)
+    orderFixed: { pre: [[0, "desc"]] },
     order: [[1, "asc"]],
+    pageLength: parseInt(CONFIG.PAGE_LENGTH) || 10,
 
-   pageLength: parseInt(CONFIG.PAGE_LENGTH) || 10,
+    // 🔹 मोबाइल में data single line के लिए
+    responsive: { details: false },
 
-    responsive: true,
- autoWidth: true,
- createdRow: function(row, rowData){
-  if(rowData.__priority === 1){
-    $(row).css({
-      background: "#ffe6e6",
-      fontWeight: "500",
-      fontSize: "14px"   // 👈 yaha font size set karo
-    });
-  }
-},
-
-
+    autoWidth: true,
+    createdRow: function(row, rowData){
+      if(rowData.__priority === 1){
+        $(row).css({ background: "#ffe6e6", fontWeight: "500", fontSize: "14px" });
+      }
+    },
     initComplete: function(){
       tables[tableId] = this.api();
     }
-  });
+});
+
 
   rawDataCache[sheetName] = rows;
   return dt;
