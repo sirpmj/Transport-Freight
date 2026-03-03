@@ -177,23 +177,26 @@ table.dataTable tbody tr:hover{background:rgba(0,140,186,0.06)}
 @keyframes flash{0%{background:rgba(255,241,204,0.95)}100%{background:transparent}}
 
 
-/* Mobile: allow header to wrap, but keep data single line */
+/* ===== Mobile: allow header wrap but keep all data single line ===== */
 @media (max-width: 760px) {
+
+  /* Header cells: allow 2-line wrap if needed */
   table.dataTable thead th {
-    white-space: normal;       /* Allow header to wrap */
-    font-size: 13px;           /* smaller header text */
-    line-height: 1.2;          /* compact line spacing */
-    padding: 6px 8px;          /* reduce padding */
+    white-space: normal;   /* wrap only header */
+    font-size: 13px;
+    line-height: 1.2;
+    padding: 6px 8px;
   }
 
+  /* Body cells: force single line always */
   table.dataTable tbody td {
-    white-space: nowrap;       /* data stays on single line */
-    font-size: 12px;           /* smaller data text for mobile */
+    white-space: nowrap;   /* no wrap for data */
+    font-size: 12px;
     overflow: hidden;
-    text-overflow: ellipsis;   /* optional: show ... if text too long */
+    text-overflow: ellipsis; /* optional: add ... if too long */
   }
 
-  /* Make table horizontally scrollable */
+  /* Responsive scroll */
   div.dataTables_wrapper {
     overflow-x: auto;
   }
