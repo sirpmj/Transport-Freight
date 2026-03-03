@@ -175,6 +175,30 @@ table.dataTable tbody tr:hover{background:rgba(0,140,186,0.06)}
 /* small animation for table rows when updated */
 .row-flash{animation:flash .9s ease}
 @keyframes flash{0%{background:rgba(255,241,204,0.95)}100%{background:transparent}}
+
+
+
+table.display {
+  width: 100% !important;
+  table-layout: auto;  /* कॉलम auto-fit */
+}
+
+table.dataTable th, table.dataTable td {
+  white-space: nowrap;  /* कॉलम content wrap न हो */
+  font-size: 12px;
+  padding: 6px 8px;
+}
+
+.dataTables_wrapper {
+  width: 100% !important;
+  overflow-x: auto;  /* horizontal scroll small screens */
+}
+
+@media (max-width: 800px){
+  .card-list { display: none !important; }  /* कार्ड्स मोबाइल पर नहीं दिखेंगे */
+  table.display { display: table !important; }
+}
+
 </style>
 </head>
 <body>
@@ -359,7 +383,7 @@ function buildGenericTable($table, data, sheetName){
    pageLength: parseInt(CONFIG.PAGE_LENGTH) || 10,
 
     responsive: true,
-
+ autoWidth: true,
  createdRow: function(row, rowData){
   if(rowData.__priority === 1){
     $(row).css({
