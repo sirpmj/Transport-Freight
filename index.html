@@ -176,6 +176,29 @@ table.dataTable tbody tr:hover{background:rgba(0,140,186,0.06)}
 .row-flash{animation:flash .9s ease}
 @keyframes flash{0%{background:rgba(255,241,204,0.95)}100%{background:transparent}}
 
+
+/* Mobile: allow header to wrap, but keep data single line */
+@media (max-width: 760px) {
+  table.dataTable thead th {
+    white-space: normal;       /* Allow header to wrap */
+    font-size: 13px;           /* smaller header text */
+    line-height: 1.2;          /* compact line spacing */
+    padding: 6px 8px;          /* reduce padding */
+  }
+
+  table.dataTable tbody td {
+    white-space: nowrap;       /* data stays on single line */
+    font-size: 12px;           /* smaller data text for mobile */
+    overflow: hidden;
+    text-overflow: ellipsis;   /* optional: show ... if text too long */
+  }
+
+  /* Make table horizontally scrollable */
+  div.dataTables_wrapper {
+    overflow-x: auto;
+  }
+}
+
 </style>
 </head>
 <body>
