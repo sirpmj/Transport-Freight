@@ -90,7 +90,6 @@ header {
 }
 
 
-
 .header-left{display:flex;align-items:center;gap:12px}
 .header-title{display:flex;flex-direction:column}
 .header-sub{font-size:12px;opacity:0.95}
@@ -150,7 +149,28 @@ header {
 
 /* Table tweaks */
 table.dataTable{width:100%!important;background:transparent}
-table.dataTable thead th{background:transparent;position:relative}
+table.dataTable thead th{
+position: sticky;
+top: 0;
+background: var(--card);
+z-index: 10;
+}
+
+.dataTables_wrapper{
+overflow-x:auto;
+}
+
+.dataTables_scrollBody{
+max-height: 70vh;
+overflow-y: auto !important;
+}
+
+table.dataTable{
+border-collapse: separate;
+}
+
+
+
 table.dataTable tbody tr:hover{background:rgba(0,140,186,0.06)}
 .normal-route{background:#dff3ff}
 .hilly-route{background:#e9ffec}
@@ -164,13 +184,23 @@ table.dataTable tbody tr:hover{background:rgba(0,140,186,0.06)}
 
 /* responsive */
 @media (max-width:760px){
-  table.dataTable {
-    display: block !important;
-    width: 100% !important;
-    overflow-x: auto;
+
+  div.dataTables_wrapper{
+    overflow-x:auto;
+    -webkit-overflow-scrolling: touch;
   }
-  .card-list { display: none !important; }
+
+  table.dataTable{
+    width:100% !important;
+  }
+
+  .card-list{
+    display:none !important;
+  }
+
 }
+
+
 
 /* small animation for table rows when updated */
 .row-flash{animation:flash .9s ease}
@@ -240,7 +270,7 @@ let CONFIG = {
   SHEETS: [],
   TITLE: "📊 Transport Dashboard",
   SUBTITLE: "Freight Dashboard",
-  CACHE_DURATION: 900000,
+  CACHE_DURATION: 3600000,
   DEFAULT_MODE: "dark",
   ICONS: {},
   PAGE_LENGTH: 10   // default fallback
@@ -345,6 +375,14 @@ function buildGenericTable($table, data, sheetName){
   }));
 
   // ✅ NORMAL COLUMNS (ALL VISIBLE)
+// show header immediately
+if(!$table.find('thead').length){
+  const thead = $('<thead><tr></tr></thead>');
+  keys.forEach(k=>{
+    thead.find('tr').append(`<th>${k}</th>`);
+  });
+  $table.append(thead);
+}
   const cols = keys.map(k => ({
     title: k,
     data: k,
@@ -358,6 +396,7 @@ function buildGenericTable($table, data, sheetName){
 
  const dt = $table.DataTable({
     deferRender: true,
+pagingType: "simple",
     processing: true,
     data: enhanced,
     columns: [
@@ -572,13 +611,18 @@ async function parallelLoadSheetsLazy(){
     sheetNames.push($(this).data('sheet'));
   });
 
-  // ✅ Only load first visible tab
+  // First tab load
   const first = sheetNames[0];
   if(first){
     await loadSheetToDom(first);
   }
 
-  console.log("🚀 Turbo Mode: Only first tab loaded");
+  // ✅ Tanker tab bhi preload karo
+  if(sheetNames.includes("Tanker")){
+    loadSheetToDom("Tanker");
+  }
+
+  console.log("🚀 Turbo Mode: First + Tanker preloaded");
   toggleCardListVisibilityFor(currentTab);
 }
 
@@ -603,7 +647,7 @@ function setMode(dark){ if(dark){ document.documentElement.classList.add('dark')
 function exportVisibleTableCsv(){ if(!currentTab || !tables[currentTab]) return alert('No table visible to export'); const dt = tables[currentTab]; const data = dt.rows({search:'applied'}).data().toArray(); if(!data.length) return alert('No rows to export'); const keys = Object.keys(data[0]).filter(k=> !k.startsWith('__'));
   const csv = [keys.join(','), ...data.map(r=> keys.map(k=> `"${String(r[k] ?? '').replace(/"/g,'""')}"`).join(','))].join('\n'); const blob = new Blob([csv], {type:'text/csv'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `${currentTab.replace('table_','')}_export.csv`; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); }
 
-const LIVE_REFRESH_MS = 10000; // 10 sec – smooth & safe
+const LIVE_REFRESH_MS = 5000; // 10 sec – smooth & safe
 
 setInterval(() => {
 
