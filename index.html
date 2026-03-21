@@ -418,28 +418,7 @@ function closeInstallPopup(){
 
 function showFirstTimePopup() {
 
-  const lastShown = localStorage.getItem("popupTime");
-  const now = Date.now();
-
-  // 🔥 Show only if 24 hrs passed
-  if (!lastShown || (now - lastShown) > 24*60*60*1000) {
-
-    // 👇 popup show
-    document.getElementById("installPopup").style.display = "flex";
-
-    localStorage.setItem("popupTime", now);
-  }
-}
-
-
-
-function isAppInstalled() {
-  return window.matchMedia('(display-mode: standalone)').matches;
-}
-
-function showFirstTimePopup() {
-
-  if (isAppInstalled()) return; // 👈 installed hai to popup nahi
+  if (isAppInstalled()) return;
 
   const lastShown = localStorage.getItem("popupTime");
   const now = Date.now();
@@ -451,12 +430,8 @@ function showFirstTimePopup() {
 }
 
 
-onAuthStateChanged(auth, async (user) => {
-
-  if(user){
-    showFirstTimePopup();   // 👈 ADD HERE
-  }
-
+window.addEventListener("load", () => {
+  showFirstTimePopup();
 });
 
 
