@@ -418,13 +418,15 @@ function closeInstallPopup(){
 
 function showFirstTimePopup() {
 
+  if (
+    isAppInstalled() ||
+    localStorage.getItem("appInstalled") === "yes"
+  ) return;
+
   const lastShown = localStorage.getItem("popupTime");
   const now = Date.now();
 
-  // 👉 force test (temporary)
-  console.log("Popup check running");
-
-  if (!lastShown || (now - lastShown) > 5000) { // 5 sec for testing
+  if (!lastShown || (now - lastShown) > 24*60*60*1000) {
     document.getElementById("installPopup").style.display = "flex";
     localStorage.setItem("popupTime", now);
   }
