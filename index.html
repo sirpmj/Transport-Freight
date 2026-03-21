@@ -418,20 +418,22 @@ function closeInstallPopup(){
 
 function showFirstTimePopup() {
 
-  if (isAppInstalled()) return;
-
   const lastShown = localStorage.getItem("popupTime");
   const now = Date.now();
 
-  if (!lastShown || (now - lastShown) > 24*60*60*1000) {
+  // 👉 force test (temporary)
+  console.log("Popup check running");
+
+  if (!lastShown || (now - lastShown) > 5000) { // 5 sec for testing
     document.getElementById("installPopup").style.display = "flex";
     localStorage.setItem("popupTime", now);
   }
 }
 
-
-window.addEventListener("load", () => {
-  showFirstTimePopup();
+window.addEventListener("DOMContentLoaded", () => {
+  setTimeout(() => {
+    showFirstTimePopup();
+  }, 1500); // slight delay = more reliable
 });
 
 
