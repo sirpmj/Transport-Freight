@@ -573,48 +573,102 @@ async function fastReload(sheetName){
   if(!table) return;
 
   try{
+
     const res = await timeoutFetch(
       OPEN_SHEET_BASE(sheetName) + '?_=' + Date.now()
     );
+
     const data = await res.json();
     if(!Array.isArray(data)) return;
 
     const { rows, keys } = normalizeRows(data);
-    const lastKey = keys[keys.length - 1];
 
-    // auto detect time column
+    // ===== Smart Update =====
+    const newData = JSON.stringify(rows);
+    const oldData = JSON.stringify(rawDataCache[sheetName] || []);
+
+    if(newData === oldData){
+      return;   // Nothing changed
+    }
+
+    // ===== Find Remark/WK column =====
+    const remarkKey = keys.find(k =>
+      ["remark","wk"].includes(k.trim().toLowerCase())
+    );
+
+    // ===== Find Update Time =====
     const timeKey = keys.find(k =>
-      k.toLowerCase().includes('update') ||
-      k.toLowerCase().includes('time') ||
-      k.toLowerCase().includes('date')
+      k.toLowerCase().includes("update") ||
+      k.toLowerCase().includes("time") ||
+      k.toLowerCase().includes("date")
     );
 
     const enhanced = rows.map(r => ({
       ...r,
-      __priority: String(r[lastKey] || '').trim() !== '' ? 1 : 0,
+      __priority: remarkKey
+          ? String(r[remarkKey] || "").trim() !== "" ? 1 : 0
+          : 0,
+
       __updated: timeKey && r[timeKey]
-        ? new Date(r[timeKey]).getTime() || 0
-        : 0
+          ? new Date(r[timeKey]).getTime() || 0
+          : 0
     }));
 
-    // 🔥 FAST swap (no destroy)
-    table.rows().invalidate();     // existing DOM reuse
-table.clear();                 // data clear (DOM nahi todta)
-table.rows.add(enhanced);      // naya data add
-table.columns.adjust();        // layout fix
-table.draw(false);             // light redraw
-table.settings()[0]._drawHold = true; // extra redraw rok
+    // ===== Save current table state =====
 
+    const currentPage = table.page();
 
-    // optional flash
- 
+    const globalSearch = table.search();
+
+    const columnSearch = [];
+
+    table.columns().every(function(i){
+      columnSearch[i] = this.search();
+    });
+
+    const scrollBody = $(table.table().container())
+      .find(".dataTables_scrollBody");
+
+    const scrollTop = scrollBody.scrollTop();
+    const scrollLeft = scrollBody.scrollLeft();
+
+    // ===== Update only data =====
+
+    table.clear();
+    table.rows.add(enhanced);
+    table.columns.adjust();
+    table.draw(false);
+
+    // Restore search
+    table.search(globalSearch);
+
+    table.columns().every(function(i){
+      this.search(columnSearch[i]);
+    });
+
+    // Restore page
+    table.page(currentPage).draw(false);
+
+    // Restore scroll
+    scrollBody.scrollTop(scrollTop);
+    scrollBody.scrollLeft(scrollLeft);
+
+    // ===== Flash changed rows =====
+
+    $(table.rows().nodes()).addClass("row-flash");
+
+    setTimeout(()=>{
+      $(table.rows().nodes()).removeClass("row-flash");
+    },1000);
 
     rawDataCache[sheetName] = rows;
     saveToCache(sheetName, rows);
 
-  }catch(e){
-    console.warn('Live reload failed:', sheetName, e);
   }
+  catch(e){
+    console.warn("Live reload failed:", sheetName, e);
+  }
+
 }
 
 
@@ -784,7 +838,7 @@ function setMode(dark){ if(dark){ document.documentElement.classList.add('dark')
 function exportVisibleTableCsv(){ if(!currentTab || !tables[currentTab]) return alert('No table visible to export'); const dt = tables[currentTab]; const data = dt.rows({search:'applied'}).data().toArray(); if(!data.length) return alert('No rows to export'); const keys = Object.keys(data[0]).filter(k=> !k.startsWith('__'));
   const csv = [keys.join(','), ...data.map(r=> keys.map(k=> `"${String(r[k] ?? '').replace(/"/g,'""')}"`).join(','))].join('\n'); const blob = new Blob([csv], {type:'text/csv'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `${currentTab.replace('table_','')}_export.csv`; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); }
 
-const LIVE_REFRESH_MS = 5000; // 10 sec – smooth & safe
+const LIVE_REFRESH_MS = 3000; // 10 sec – smooth & safe
 
 setInterval(() => {
 
