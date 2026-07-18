@@ -500,14 +500,16 @@ function buildGenericTable($table, data, sheetName){
   const { rows, keys } = normalizeRows(data);
   const tableId = $table.attr("id");
 
-  // ✅ LAST COLUMN (Remark / WK / etc.)
-  const lastColKey = keys[keys.length - 1];
+// केवल Remark/WK column को priority दें
+const remarkKey = keys.find(k =>
+  k.trim().toLowerCase() === "remark" ||
+  k.trim().toLowerCase() === "wk"
+);
 
-  // ✅ PRIORITY FLAG
-  const enhanced = rows.map(r => ({
-    ...r,
-    __priority: String(r[lastColKey] || "").trim() !== "" ? 1 : 0
-  }));
+const enhanced = rows.map(r => ({
+  ...r,
+  __priority: remarkKey && String(r[remarkKey] || "").trim() !== "" ? 1 : 0
+}));
 
   // ✅ NORMAL COLUMNS (ALL VISIBLE)
 // show header immediately
