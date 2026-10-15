@@ -290,7 +290,6 @@ body.cards-on #searchAll{display:block}
   </div>
   <div class="header-actions">
     <div class="switch" id="modeToggle" title="Toggle Dark / Light">🌙<span id="modeLabel">Dark</span></div>
-    <button class="btn" id="cardToggle" title="Toggle Card View (mobile)">Card View</button>
   </div>
 </header>
 
@@ -456,7 +455,7 @@ const CACHE_TTL = 3600000, LIVE_MS = 30000, TIMEOUT = 12000;
 const CONFIG = {SHEETS:[], TITLE:"📊 Transport Dashboard", SUBTITLE:"Freight Dashboard", DEFAULT_MODE:"dark", ICONS:{}, PAGE_LENGTH:10};
 const tables={}, rawStr={}, sigs={}, inflight={}, shown={};
 let currentTab=null;
-let useCards = localStorage.getItem('ui_cards')!==null ? localStorage.getItem('ui_cards')==='1' : true;
+const useCards=false; // card view removed
 const isMobile=()=>window.innerWidth<=760;
 const cardsActive=()=>isMobile() && useCards;
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -645,11 +644,6 @@ async function initUI(){
     this.scrollIntoView({inline:'center',block:'nearest',behavior:'smooth'});
   });
   $('#modeToggle').on('click',()=>setMode(localStorage.getItem('ui_mode')!=='dark'));
-  $('#cardToggle').on('click',()=>{
-    useCards=!useCards; localStorage.setItem('ui_cards',useCards?'1':'0'); setToggleLabel();
-    if(!useCards) Object.values(tables).forEach(d=>d.search('').draw(false));
-    updateSearchBox(); applyView(currentTab);
-  });
   let lastMobile=isMobile();
   window.addEventListener('resize',debounce(()=>{
     if(isMobile()===lastMobile) return; lastMobile=isMobile();
