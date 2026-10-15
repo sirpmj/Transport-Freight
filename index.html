@@ -279,6 +279,15 @@ body.cards-on #searchAll{display:block}
   .dataTables_wrapper .dataTables_paginate{float:none;text-align:center}
   .dataTables_scrollBody{max-height:65vh}
 }
+
+/* ===== v104: mobile table fits screen width (no horizontal scroll) ===== */
+@media (max-width:760px){
+  div.dataTables_wrapper{overflow-x:visible!important}
+  table.dataTable{width:100%!important;table-layout:auto;margin:0!important}
+  table.dataTable thead th,table.dataTable thead td{position:static;padding:6px 12px 6px 4px!important;font-size:11px;line-height:1.2;white-space:normal!important;word-break:break-word}
+  table.dataTable tbody td{padding:6px 4px!important;font-size:11.5px;line-height:1.25;white-space:normal!important;overflow:visible!important;text-overflow:clip!important;word-break:break-word}
+  table.dataTable thead>tr>th:before,table.dataTable thead>tr>th:after{right:2px!important;font-size:.65em}
+}
 </style>
 </head>
 <body>
@@ -502,7 +511,7 @@ function buildGeneric($t,rows,keys,tabId){
     columns:[{data:'__priority',visible:false},...keys.map(k=>({title:k,data:k}))],
     orderMulti:false, orderFixed:{pre:[[0,'desc']]}, order:[[1,'asc']],
     pageLength:parseInt(CONFIG.PAGE_LENGTH)||10,
-    responsive:false, scrollX:true, autoWidth:false,
+    responsive:false, scrollX:!isMobile(), autoWidth:false,
     createdRow:(row,d)=>{ if(d.__priority===1) $(row).addClass('prio-row'); }
   });
   tables[tabId]=dt;
@@ -517,7 +526,7 @@ function buildCalc($t,rows,keys,tabId){
   nk.forEach(k=>hr.append(`<th class="normal-route">${esc(k)}</th>`));
   hk.forEach(k=>hr.append(`<th class="hilly-route">${esc(k)}</th>`));
   $th.append(hr); $t.append($th);
-  tables[tabId]=$t.DataTable({data:rows,columns:keys.map(k=>({title:k,data:k})),destroy:true,responsive:true,pageLength:15,order:[[5,'asc']],
+  tables[tabId]=$t.DataTable({data:rows,columns:keys.map(k=>({title:k,data:k})),destroy:true,responsive:!isMobile(),pageLength:15,order:[[5,'asc']],
     createdRow:row=>{$(row).find('td:lt(4)').addClass('normal-route');$(row).find('td:gt(3)').addClass('hilly-route')}});
 }
 
@@ -529,6 +538,7 @@ function applyData(sheet,data,flash){
   const {rows,keys}=norm(data), sig=keys.join('|');
   rawStr[sheet]=str;
   if(!keys.length){ $('#'+tabId+'_placeholder').html('<div class="placeholder">No data</div>').show(); return true; }
+  $t.toggleClass('nowrap',!isMobile());
   if(sheet==='Calculation') buildCalc($t,rows,keys,tabId);
   else if(tables[tabId]&&sigs[tabId]===sig) updateGeneric(tables[tabId],rows,keys);
   else buildGeneric($t,rows,keys,tabId);
@@ -609,6 +619,13 @@ function setMode(dark){
   localStorage.setItem('ui_mode',dark?'dark':'light');
   $('#modeLabel').text(dark?'Dark':'Light');
 }
+function rebuildAll(){
+  Object.keys(tables).forEach(tabId=>{
+    const sheet=$('#'+tabId+'_container').data('sheet'), str=rawStr[sheet]; if(!str) return;
+    delete tables[tabId]; delete sigs[tabId]; delete rawStr[sheet];
+    applyData(sheet,JSON.parse(str),false);
+  });
+}
 const setToggleLabel=()=>$('#cardToggle').text(useCards?'Table View':'Card View');
 
 /* ===== UI ===== */
@@ -626,7 +643,7 @@ async function initUI(){
     tabsB.append(`<div id="${id}_container" class="tab-content" data-sheet="${esc(sheet)}">
       <div id="${id}_placeholder" class="placeholder"><div style="text-align:center"><div class="spinner"></div><div style="margin-top:10px;color:var(--muted)">Loading ${esc(sheet)}...</div></div></div>
       <div id="${id}_cards" class="card-list"></div>
-      <table id="${id}" class="display nowrap" style="width:100%;display:none"></table></div>`);
+      <table id="${id}" class="display" style="width:100%;display:none"></table></div>`);
   });
   $('.tab-btn').first().addClass('active'); $('.tab-content').first().addClass('active');
   currentTab=$('.tab-btn').first().data('tab');
@@ -647,6 +664,7 @@ async function initUI(){
   let lastMobile=isMobile();
   window.addEventListener('resize',debounce(()=>{
     if(isMobile()===lastMobile) return; lastMobile=isMobile();
+    rebuildAll();
     updateSearchBox(); applyView(currentTab);
   },150));
 
