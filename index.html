@@ -20,273 +20,86 @@ window.__settingsP = fetch("https://opensheet.elk.sh/1-rBhct0Xohot_KX6bL4M9TQJ8Q
 <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
 
 <style>
-:root{
-  --bg:#f4f7fa; --card:#fff; --text:#222; --muted:#666;
-  --primary:#008cba; --accent:#00bcd4; --glass: rgba(255,255,255,0.6);
-}
-:root.dark{
-  --bg:#0f1720; --card:#0b1220; --text:#e6eef6; --muted:#9fb0c4;
-  --primary:#0ea5b7; --accent:#22d3ee; --glass: rgba(15,23,32,0.6);
-}
+:root{--bg:#f4f7fa;--card:#fff;--text:#222;--muted:#666;--primary:#008cba;--accent:#00bcd4;--glass:rgba(255,255,255,.6);--stick:0px}
+:root.dark{--bg:#0f1720;--card:#0b1220;--text:#e6eef6;--muted:#9fb0c4;--primary:#0ea5b7;--accent:#22d3ee;--glass:rgba(15,23,32,.6)}
 *{box-sizing:border-box}
-body{margin:0;font-family:Inter, "Segoe UI", Arial, sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;}
-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 24px;
-  background: linear-gradient(90deg, var(--primary), var(--accent));
-  color: #fff;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:Inter,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
 
-/* Title + Subtitle on one line */
-.header-left {
-  display: flex;
-  align-items: baseline;
-  gap: 10px; /* Title & subtitle ke beech space */
-}
-
-#dashboardTitle {
-  color: #ffffff;
-  font-size: 22px;
-  font-weight: 700;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.25);
-}
-
-#dashboardSubtitle {
-  color: #d1faff;
-  font-weight: 500;
-  font-size: 15px;
-  opacity: 0.9;
-}
-
-/* Right side buttons */
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-right: 15px; /* thoda andar right side */
-}
-
-.switch {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--glass);
-  padding: 6px 12px;
-  border-radius: 999px;
-  color: #fff;
-  font-weight: 700;
-}
-
-.btn {
-  border: none;
-  padding: 8px 14px;
-  border-radius: 10px;
-  background: #fff;
-  color: var(--primary);
-  cursor: pointer;
-  font-weight: 700;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-  transition: all 0.2s ease;
-}
-.btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-}
-
-
-.header-left{display:flex;align-items:center;gap:12px}
-.header-title{display:flex;flex-direction:column}
-.header-sub{font-size:12px;opacity:0.95}
-.header-actions{display:flex;align-items:center;gap:10px}
-
-/* Toggle */
-.switch{
-  display:inline-flex;align-items:center;gap:8px;background:var(--glass);padding:6px;border-radius:999px;color:#fff;font-weight:700;
-}
-.btn{
-  border:none;padding:8px 12px;border-radius:10px;background:#fff;color:var(--primary);cursor:pointer;font-weight:700;
-  box-shadow:0 6px 18px rgba(0,0,0,0.08);
-}
-.btn.ghost{background:transparent;color:#fff;box-shadow:none;border:1px solid rgba(255,255,255,0.08)}
-
-/* Container */
-.container{max-width:1200px;margin:18px auto;padding:12px}
+/* Header */
+header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 24px;background:linear-gradient(90deg,var(--primary),var(--accent));color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.header-left{display:flex;align-items:baseline;gap:10px;min-width:0}
+#dashboardTitle{color:#fff;font-size:24px;font-weight:700;text-shadow:0 1px 4px rgba(0,0,0,.25);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#dashboardSubtitle{color:#d1faff;font-weight:500;font-size:16px;opacity:.9}
+.header-actions{display:flex;align-items:center;gap:12px;margin-right:15px}
+.switch{display:inline-flex;align-items:center;gap:8px;background:var(--glass);padding:6px 12px;border-radius:999px;color:#fff;font-weight:700;cursor:pointer;user-select:none}
+.btn{border:none;padding:8px 14px;border-radius:10px;background:#fff;color:var(--primary);cursor:pointer;font-weight:700;box-shadow:0 6px 18px rgba(0,0,0,.08)}
 
 /* Tabs + search */
-.tabs-search-container { display:flex; gap:10px; align-items:center; justify-content:space-between; margin-bottom:12px; flex-wrap: wrap; }
-.tabs { display:flex; gap:10px; overflow-x:auto;padding-top:4px; }
-.tabs button {
-  padding: 10px 12px;
-  border: none;
-  border-radius: 14px;
-  background: #e3eaf0;
-  cursor: pointer;
-  white-space: nowrap;
-  font-size: 18px;
-  font-weight: 600;
-  color: #333;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.3s ease;
-  letter-spacing: 0.5px;
-}
-.tabs button span.emoji { font-size: 28px; display: inline-block; transition: transform 0.3s ease; }
-.tabs button:hover { background: #b3d4fc; color: #000; transform: translateY(-3px); }
-.tabs button.active { background: linear-gradient(135deg, #008cba, #00bcd4); color: #fff; font-size: 24px; font-weight: 700; box-shadow: 0 6px 16px rgba(0,0,0,0.2); }
-.tabs button.active span.emoji { transform: scale(1.3); }
-.tabs::-webkit-scrollbar { display:none; }
-.search-box{display:flex;gap:8px;align-items:center}
-.search-box input{padding:10px 14px;border-radius:14px;border:2px solid var(--primary);width:200px;font-weight:700}
-
-/* Card view toggle */
+.container{max-width:1200px;margin:18px auto;padding:12px}
+.tabs-search-container{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap}
+.tabs{display:flex;gap:10px;overflow-x:auto;padding-top:4px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{padding:10px 12px;border:none;border-radius:14px;background:#e3eaf0;cursor:pointer;white-space:nowrap;font-size:18px;font-weight:600;color:#333;display:flex;align-items:center;gap:8px;transition:all .3s ease;letter-spacing:.5px}
+.tabs button span.emoji{font-size:28px;display:inline-block;transition:transform .3s ease}
+.tabs button:hover{background:#b3d4fc;color:#000;transform:translateY(-3px)}
+.tabs button.active{background:linear-gradient(135deg,#008cba,#00bcd4);color:#fff;font-size:24px;font-weight:700;box-shadow:0 6px 16px rgba(0,0,0,.2)}
+.tabs button.active span.emoji{transform:scale(1.3)}
+.dark .tabs button{background:#16212f;color:var(--text)}
+.dark .tabs button:hover{background:#1f3046;color:#fff}
+.dark .tabs button.active{background:linear-gradient(135deg,#008cba,#00bcd4);color:#fff}
 .controls{display:flex;gap:8px;align-items:center}
+.search-box{display:flex;gap:8px;align-items:center}
+.search-box input{padding:10px 14px;border-radius:14px;border:2px solid var(--primary);width:200px;font-weight:700;background:var(--card);color:var(--text)}
 
-/* Tab content area */
-.tab-content{display:none;background:var(--card);padding:12px;border-radius:10px;box-shadow:0 6px 24px rgba(2,6,23,0.06);min-height:220px;opacity:0;transform:translateY(6px);transition:opacity .28s ease,transform .28s ease}
-.tab-content.active{display:block;opacity:1;transform:none}
-
-/* spinner / placeholder */
+/* Content + table */
+.tab-content{display:none;background:var(--card);padding:12px;border-radius:10px;box-shadow:0 6px 24px rgba(2,6,23,.06);min-height:220px}
+.tab-content.active{display:block}
 .placeholder{display:flex;align-items:center;justify-content:center;padding:36px;color:var(--muted)}
-.spinner{width:36px;height:36px;border-radius:50%;border:4px solid rgba(0,0,0,0.08);border-top-color:var(--primary);animation:spin 0.9s linear infinite}
+.spinner{width:36px;height:36px;border-radius:50%;border:4px solid rgba(0,0,0,.08);border-top-color:var(--primary);animation:spin .9s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-
-/* Table tweaks */
-table.dataTable{width:100%!important;background:transparent}
-table.dataTable thead th{
-position: sticky;
-top: 0;
-background: var(--card);
-z-index: 10;
-}
-
-.dataTables_wrapper{
-overflow-x:auto;
-}
-
-.dataTables_scrollBody{
-max-height: 70vh;
-overflow-y: auto !important;
-}
-
-table.dataTable{
-border-collapse: separate;
-}
-
-
-
-table.dataTable tbody tr:hover{background:rgba(0,140,186,0.06)}
-.normal-route{background:#dff3ff}
-.hilly-route{background:#e9ffec}
+table.dataTable{width:100%!important;background:transparent;border-collapse:separate}
+table.dataTable thead th{position:sticky;top:0;background:var(--card);z-index:10}
+.dataTables_wrapper{overflow-x:auto}
+.dataTables_scrollBody{max-height:70vh;overflow-y:auto!important}
+table.dataTable tbody tr:hover{background:rgba(0,140,186,.06)}
 .dataTables_wrapper .dataTables_filter input{border-radius:8px;padding:6px 10px}
-
-/* small screens: card list */
-.card-list{display:none;gap:10px}
-.card{background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);border-radius:10px;padding:10px;border:1px solid rgba(0,0,0,0.04)}
-.card h4{margin:0 0 6px 0;font-size:15px}
-.card p{margin:0;color:var(--muted);font-size:13px}
-
-/* responsive */
-@media (max-width:760px){
-
-  div.dataTables_wrapper{
-    overflow-x:auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  table.dataTable{
-    width:100% !important;
-  }
-
-
-}
-
-
-
-/* small animation for table rows when updated */
-.row-flash{animation:flash .9s ease}
-@keyframes flash{0%{background:rgba(255,241,204,0.95)}100%{background:transparent}}
-
-
-/* ===== Mobile: allow header wrap but keep all data single line ===== */
-@media (max-width: 760px) {
-  div.dataTables_wrapper {
-    overflow-x: auto;  /* horizontal scroll on mobile */
-    -webkit-overflow-scrolling: touch;
-  }
-
-  table.dataTable tbody td {
-    white-space: nowrap;    /* single line data */
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-size: 12px;
-  }
-
-  table.dataTable thead th {
-    white-space: normal;    /* header wrap allowed */
-    line-height: 1.2;
-  }
-}
-
-
-/* ===== v102: cards, priority rows, mobile ===== */
-html{-webkit-text-size-adjust:100%}
-body{-webkit-tap-highlight-color:transparent}
+.normal-route{background:#dff3ff}.hilly-route{background:#e9ffec}
+.dark .normal-route{background:rgba(0,140,186,.25)}.dark .hilly-route{background:rgba(46,160,67,.25)}
 .prio-row{background:rgba(229,57,53,.14)!important;font-weight:500}
-.card-list{display:none;flex-direction:column;gap:10px}
-.mcard{background:var(--card);border:1px solid rgba(128,128,128,.25);border-left:4px solid var(--primary);border-radius:12px;padding:12px}
-.mcard.prio{border-left-color:#e53935;background:rgba(229,57,53,.10)}
-.mcard h4{margin:0 0 8px;font-size:16px;line-height:1.3;word-break:break-word}
-.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px}
-.fld{min-width:0}.fld.wide{grid-column:1/-1}
-.fld span{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}
-.fld b{font-size:14px;font-weight:600;word-break:break-word}
-.fld.n{background:rgba(0,140,186,.13);padding:4px 6px;border-radius:6px}
-.fld.h{background:rgba(46,160,67,.15);padding:4px 6px;border-radius:6px}
-.cnt{font-size:12px;color:var(--muted);margin:0 2px 2px}
-.more-btn{background:var(--primary);color:#fff;width:100%;padding:12px}
-#searchAll{display:none}
-body.cards-on #searchAll{display:block}
-@media (min-width:761px){#cardToggle{display:none}}
-@media (max-width:760px){
-  header{padding:calc(10px + env(safe-area-inset-top,0px)) 12px 10px;gap:8px}
-  .header-left{min-width:0;flex:1;flex-direction:column;align-items:flex-start;gap:0}
-  #dashboardTitle{font-size:17px!important}
-  #dashboardSubtitle{font-size:12px!important}
-  .header-actions{margin-right:0;gap:8px;flex:none}
-  .switch{padding:6px 10px;font-size:13px}
-  .btn{padding:7px 10px;font-size:13px}
-  .container{margin:0;padding:8px}
-  .tabs-search-container{position:sticky;top:0;z-index:20;background:var(--bg);margin:0 -8px 8px;padding:8px;gap:8px;box-shadow:0 2px 6px rgba(0,0,0,.08)}
-  .tabs{width:100%;gap:8px;-webkit-overflow-scrolling:touch}
-  .tabs button{flex:none;padding:8px 12px;font-size:14px;border-radius:12px}
-  .tabs button.active{font-size:14px}
-  .tabs button span.emoji{font-size:18px}
-  .tabs button.active span.emoji{transform:none}
-  .tabs button:hover{transform:none}
-  .controls{width:100%}
-  .search-box{width:100%;flex-wrap:wrap}
-  .search-box input{flex:1 1 40%;min-width:0;width:auto;padding:9px 12px;font-size:16px;border-radius:12px}
-  #searchAll{flex:1 1 100%}
-  .tab-content{padding:8px}
-  .dataTables_wrapper .dataTables_length{display:none}
-  .dataTables_wrapper .dataTables_filter{float:none;text-align:left;margin-bottom:6px}
-  .dataTables_wrapper .dataTables_filter input{width:calc(100% - 70px);font-size:16px}
-  .dataTables_wrapper .dataTables_info{float:none;text-align:center;padding-top:6px;font-size:12px;white-space:normal}
-  .dataTables_wrapper .dataTables_paginate{float:none;text-align:center}
-  .dataTables_scrollBody{max-height:65vh}
-}
+.row-flash{animation:flash .9s ease}
+@keyframes flash{0%{background:rgba(255,241,204,.95)}100%{background:transparent}}
 
-/* ===== v105: mobile auto-fit columns, single-line data ===== */
+/* ===== Mobile: full-screen table ===== */
 @media (max-width:760px){
-  div.dataTables_wrapper{overflow-x:auto!important;-webkit-overflow-scrolling:touch}
+  header{padding:calc(8px + env(safe-area-inset-top,0px)) 12px 8px}
+  #dashboardTitle{font-size:16px}
+  #dashboardSubtitle,#modeLabel{display:none}
+  .header-actions{margin-right:0}
+  .switch{padding:5px 10px}
+  .container{margin:0;padding:0;max-width:none}
+  .tabs-search-container{position:sticky;top:0;z-index:30;flex-direction:column;align-items:stretch;flex-wrap:nowrap;gap:8px;margin:0;padding:8px;background:var(--bg);box-shadow:0 2px 8px rgba(0,0,0,.12)}
+  .tabs{padding:0;gap:6px}
+  .tabs button{flex:1 0 auto;justify-content:center;padding:9px 12px;font-size:14px;border-radius:10px;gap:6px;letter-spacing:0}
+  .tabs button.active{font-size:14px}
+  .tabs button span.emoji,.tabs button.active span.emoji{font-size:17px;transform:none}
+  .tabs button:hover{transform:none}
+  .controls{display:block;width:100%}
+  .search-box{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .search-box input{width:100%;min-width:0;height:40px;padding:0 12px;font-size:16px;border-radius:10px;border-width:1.5px}
+  #searchAll{grid-column:1/-1}
+  .tab-content{padding:0;border-radius:0;box-shadow:none;min-height:60vh}
+  .dataTables_wrapper{overflow-x:visible;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px))}
+  .dataTables_wrapper.hscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .dataTables_wrapper .dataTables_length,.dataTables_wrapper .dataTables_filter{display:none}
   table.dataTable{width:auto!important;min-width:100%;table-layout:auto;margin:0!important;font-size:11.5px}
-  table.dataTable thead th,table.dataTable thead td{position:static;padding:.5em 1.4em .5em .35em!important;font-size:.95em;line-height:1.2;white-space:normal!important}
-  table.dataTable tbody td{padding:.45em .35em!important;font-size:1em;line-height:1.25;white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important}
+  table.dataTable thead th,table.dataTable thead td{position:sticky;top:var(--stick,0px);z-index:5;padding:.5em 1.4em .5em .35em!important;font-size:.95em;line-height:1.2;white-space:normal!important}
+  .hscroll table.dataTable thead th,#table_calculation thead th{position:static}
   table.dataTable thead>tr>th:before,table.dataTable thead>tr>th:after{right:2px!important;font-size:.65em}
+  table.dataTable tbody td{padding:.45em .35em!important;line-height:1.25;white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important}
+  .dataTables_wrapper .dataTables_info{float:none;text-align:center;padding:10px 0 4px;font-size:12px;white-space:normal}
+  .dataTables_wrapper .dataTables_paginate{float:none;text-align:center;padding:0}
+  .dataTables_wrapper .dataTables_paginate .paginate_button{min-width:44px;padding:.6em 1em}
 }
 </style>
 </head>
@@ -294,8 +107,8 @@ body.cards-on #searchAll{display:block}
 
 <header>
   <div class="header-left">
-    <div id="dashboardTitle" style="font-size:24px">📊 Transport Dashboard</div>
-    <div class="header-sub" id="dashboardSubtitle" style="opacity:0.9;font-size:16px">Loading ...</div>
+    <div id="dashboardTitle">📊 Transport Dashboard</div>
+    <div class="header-sub" id="dashboardSubtitle">Loading ...</div>
   </div>
   <div class="header-actions">
     <div class="switch" id="modeToggle" title="Toggle Dark / Light">🌙<span id="modeLabel">Dark</span></div>
@@ -307,9 +120,9 @@ body.cards-on #searchAll{display:block}
     <div class="tabs" id="tabsContainer"></div>
     <div class="controls">
       <div class="search-box" id="searchBox">
-        <input type="text" id="searchFrom" placeholder="🔎 FROM">
-        <input type="text" id="searchTo" placeholder="🔎 TO">
-        <input type="search" id="searchAll" placeholder="🔎 Search all">
+        <input type="search" id="searchFrom" autocomplete="off" placeholder="🔎 FROM">
+        <input type="search" id="searchTo" autocomplete="off" placeholder="🔎 TO">
+        <input type="search" id="searchAll" autocomplete="off" placeholder="🔎 Search" style="display:none">
       </div>
     </div>
   </div>
@@ -462,11 +275,9 @@ const SHEET_ID = "1-rBhct0Xohot_KX6bL4M9TQJ8QpzmtzEUexW4xHn2GI";
 const OPEN = s => `https://opensheet.elk.sh/${SHEET_ID}/${encodeURIComponent(s)}`;
 const CACHE_TTL = 3600000, LIVE_MS = 30000, TIMEOUT = 12000;
 const CONFIG = {SHEETS:[], TITLE:"📊 Transport Dashboard", SUBTITLE:"Freight Dashboard", DEFAULT_MODE:"dark", ICONS:{}, PAGE_LENGTH:10};
-const tables={}, rawStr={}, sigs={}, inflight={}, shown={};
+const tables={}, rawStr={}, sigs={}, inflight={};
 let currentTab=null;
-const useCards=false; // card view removed
 const isMobile=()=>window.innerWidth<=760;
-const cardsActive=()=>isMobile() && useCards;
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const debounce=(fn,w=220)=>{let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),w)}};
 const tf=u=>{const c=new AbortController();const t=setTimeout(()=>c.abort(),TIMEOUT);return fetch(u,{signal:c.signal}).finally(()=>clearTimeout(t))};
@@ -510,11 +321,11 @@ function buildGeneric($t,rows,keys,tabId){
     deferRender:true, pagingType:'simple', data:enhance(rows,keys),
     columns:[{data:'__priority',visible:false},...keys.map(k=>({title:k,data:k}))],
     orderMulti:false, orderFixed:{pre:[[0,'desc']]}, order:[[1,'asc']],
-    pageLength:parseInt(CONFIG.PAGE_LENGTH)||10,
+    pageLength:isMobile()?Math.max(parseInt(CONFIG.PAGE_LENGTH)||10,25):(parseInt(CONFIG.PAGE_LENGTH)||10),
     responsive:false, scrollX:!isMobile(), autoWidth:false,
     createdRow:(row,d)=>{ if(d.__priority===1) $(row).addClass('prio-row'); }
   });
-  tables[tabId]=dt; dt.on('draw.dt',()=>autoFit(tabId));
+  tables[tabId]=dt; dt.on('draw.dt',()=>autoFit(tabId)); dt.on('page.dt',()=>{ if(isMobile()) window.scrollTo({top:0}); });
 }
 function updateGeneric(dt,rows,keys){ dt.clear(); dt.rows.add(enhance(rows,keys)); dt.draw(false); }
 function buildCalc($t,rows,keys,tabId){
@@ -565,29 +376,6 @@ async function loadSheet(sheet){
   if(!ok&&!c) $('#table_'+sheet.toLowerCase()+'_placeholder').html(`<div style="color:var(--muted)">⚠ Unable to load ${esc(sheet)}. Please check network or sheet.</div>`);
 }
 
-/* ===== Card view (mobile) – follows table search / sort / filters ===== */
-const findCol=(keys,name)=>{let i=keys.findIndex(k=>k.trim().toLowerCase()===name);return i>=0?i:keys.findIndex(k=>k.toLowerCase().includes(name))};
-function renderCards(tabId,keep){
-  const el=document.getElementById(tabId+'_cards'), dt=tables[tabId]; if(!el||!dt) return;
-  if(!keep) shown[tabId]=30;
-  const sheet=$('#'+tabId+'_container').data('sheet');
-  const rows=dt.rows({search:'applied',order:'applied'}).data().toArray();
-  if(!rows.length){ el.innerHTML='<div class="placeholder">No data</div>'; return; }
-  const keys=Object.keys(rows[0]).filter(k=>!k.startsWith('__'));
-  const fi=findCol(keys,'from'), ti=findCol(keys,'to'), ft=fi>=0&&ti>=0&&fi!==ti&&sheet!=='Calculation';
-  const card=r=>{
-    const title=ft?`${esc(r[keys[fi]])} → ${esc(r[keys[ti]])}`:esc(r[keys[0]]);
-    const f=keys.map((k,i)=>({k,i})).filter(o=>(ft?(o.i!==fi&&o.i!==ti):o.i!==0)&&String(r[o.k]??'').trim()!=='');
-    const grp=sheet==='Calculation'?(i=>i<4?' n':' h'):()=>'';
-    return `<div class="mcard${r.__priority===1?' prio':''}"><h4>${title}</h4><div class="fgrid">`+
-      f.map(o=>`<div class="fld${String(r[o.k]).length>28?' wide':''}${grp(o.i)}"><span>${esc(o.k)}</span><b>${esc(r[o.k])}</b></div>`).join('')+`</div></div>`;
-  };
-  const n=shown[tabId]||30;
-  el.innerHTML=`<div class="cnt">${rows.length} results</div>`+rows.slice(0,n).map(card).join('')+
-    (rows.length>n?`<button class="btn more-btn" data-t="${tabId}">Show more (${rows.length-n} left)</button>`:'');
-}
-$(document).on('click','.more-btn',function(){const t=$(this).data('t');shown[t]=(shown[t]||30)+30;renderCards(t,true)});
-
 /* Mobile auto-fit: columns size to content (single line); if still wider than screen, shrink font until it fits */
 function autoFit(tabId){
   if(!isMobile()) return;
@@ -600,14 +388,9 @@ function autoFit(tabId){
     fs=Math.max(8.5,fs*box.clientWidth/tbl.offsetWidth-0.2);
     tbl.style.fontSize=fs+'px';
   }
+  box.classList.toggle('hscroll',tbl.offsetWidth>box.clientWidth+1);
 }
-function applyView(tabId,keep){
-  const on=cardsActive();
-  document.body.classList.toggle('cards-on',on);
-  const $w=$('#'+tabId).closest('.dataTables_wrapper'), w=$w.length?$w:$('#'+tabId);
-  if(on){ w.css('display','none'); $('#'+tabId+'_cards').css('display','flex'); renderCards(tabId,keep); }
-  else { $('#'+tabId+'_cards').css('display','none'); w.css('display',''); if(tables[tabId]){ tables[tabId].columns.adjust(); autoFit(tabId); } }
-}
+function applyView(tabId){ const t=tables[tabId]; if(t){ t.columns.adjust(); autoFit(tabId); } }
 
 /* ===== FROM / TO / ALL filters ===== */
 function colIdx(dt,name){const cols=dt.settings().init().columns||[];let i=cols.findIndex(c=>(c.title||'').trim().toLowerCase()===name);return i>=0?i:cols.findIndex(c=>(c.title||'').toLowerCase().includes(name))}
@@ -617,15 +400,15 @@ function applyFilters(){
   const i=colIdx(dt,'from'), j=colIdx(dt,'to');
   if(i>=0) dt.column(i).search($('#searchFrom').val().trim());
   if(j>=0) dt.column(j).search($('#searchTo').val().trim());
-  if(cardsActive()) dt.search($('#searchAll').val().trim());
+  if(isMobile()) dt.search($('#searchAll').val().trim());
   dt.draw();
-  if(cardsActive()) renderCards(currentTab);
 }
 $('#searchFrom,#searchTo,#searchAll').on('input',debounce(applyFilters));
 function updateSearchBox(){
-  const ft=!!currentTab&&/tanker|truck|others/.test(currentTab);
+  const ft=!!currentTab&&/tanker|truck|others/.test(currentTab), mob=isMobile();
   $('#searchFrom,#searchTo').toggle(ft);
-  $('#searchBox').css('display',(ft||cardsActive())?'flex':'none');
+  $('#searchAll').toggle(mob&&!ft);
+  $('#searchBox').toggle(ft||mob);
   $('#searchFrom,#searchTo,#searchAll').val('');
 }
 function setMode(dark){
@@ -640,7 +423,6 @@ function rebuildAll(){
     applyData(sheet,JSON.parse(str),false);
   });
 }
-const setToggleLabel=()=>$('#cardToggle').text(useCards?'Table View':'Card View');
 
 /* ===== UI ===== */
 async function initUI(){
@@ -656,14 +438,16 @@ async function initUI(){
     tabsC.append(`<button class="tab-btn" data-tab="${id}"><span class="emoji">${emoji}</span> ${esc(sheet)}</button>`);
     tabsB.append(`<div id="${id}_container" class="tab-content" data-sheet="${esc(sheet)}">
       <div id="${id}_placeholder" class="placeholder"><div style="text-align:center"><div class="spinner"></div><div style="margin-top:10px;color:var(--muted)">Loading ${esc(sheet)}...</div></div></div>
-      <div id="${id}_cards" class="card-list"></div>
       <table id="${id}" class="display" style="width:100%;display:none"></table></div>`);
   });
   $('.tab-btn').first().addClass('active'); $('.tab-content').first().addClass('active');
   currentTab=$('.tab-btn').first().data('tab');
   setMode((localStorage.getItem('ui_mode')||CONFIG.DEFAULT_MODE||'dark')==='dark');
-  setToggleLabel(); updateSearchBox();
+  updateSearchBox();
 
+  const bar=document.querySelector('.tabs-search-container');
+  const setStick=()=>document.documentElement.style.setProperty('--stick',isMobile()?bar.offsetHeight+'px':'0px');
+  if(window.ResizeObserver) new ResizeObserver(setStick).observe(bar); setStick();
   $('.tab-btn').on('click',function(){
     $('.tab-btn').removeClass('active'); $(this).addClass('active');
     $('.tab-content').removeClass('active');
