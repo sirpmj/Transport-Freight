@@ -280,12 +280,12 @@ body.cards-on #searchAll{display:block}
   .dataTables_scrollBody{max-height:65vh}
 }
 
-/* ===== v104: mobile table fits screen width (no horizontal scroll) ===== */
+/* ===== v105: mobile auto-fit columns, single-line data ===== */
 @media (max-width:760px){
-  div.dataTables_wrapper{overflow-x:visible!important}
-  table.dataTable{width:100%!important;table-layout:auto;margin:0!important}
-  table.dataTable thead th,table.dataTable thead td{position:static;padding:6px 12px 6px 4px!important;font-size:11px;line-height:1.2;white-space:normal!important;word-break:break-word}
-  table.dataTable tbody td{padding:6px 4px!important;font-size:11.5px;line-height:1.25;white-space:normal!important;overflow:visible!important;text-overflow:clip!important;word-break:break-word}
+  div.dataTables_wrapper{overflow-x:auto!important;-webkit-overflow-scrolling:touch}
+  table.dataTable{width:auto!important;min-width:100%;table-layout:auto;margin:0!important;font-size:11.5px}
+  table.dataTable thead th,table.dataTable thead td{position:static;padding:.5em 1.4em .5em .35em!important;font-size:.95em;line-height:1.2;white-space:normal!important}
+  table.dataTable tbody td{padding:.45em .35em!important;font-size:1em;line-height:1.25;white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important}
   table.dataTable thead>tr>th:before,table.dataTable thead>tr>th:after{right:2px!important;font-size:.65em}
 }
 </style>
@@ -514,7 +514,7 @@ function buildGeneric($t,rows,keys,tabId){
     responsive:false, scrollX:!isMobile(), autoWidth:false,
     createdRow:(row,d)=>{ if(d.__priority===1) $(row).addClass('prio-row'); }
   });
-  tables[tabId]=dt;
+  tables[tabId]=dt; dt.on('draw.dt',()=>autoFit(tabId));
 }
 function updateGeneric(dt,rows,keys){ dt.clear(); dt.rows.add(enhance(rows,keys)); dt.draw(false); }
 function buildCalc($t,rows,keys,tabId){
@@ -528,6 +528,7 @@ function buildCalc($t,rows,keys,tabId){
   $th.append(hr); $t.append($th);
   tables[tabId]=$t.DataTable({data:rows,columns:keys.map(k=>({title:k,data:k})),destroy:true,responsive:!isMobile(),pageLength:15,order:[[5,'asc']],
     createdRow:row=>{$(row).find('td:lt(4)').addClass('normal-route');$(row).find('td:gt(3)').addClass('hilly-route')}});
+  tables[tabId].on('draw.dt',()=>autoFit(tabId));
 }
 
 /* ===== Apply data (only touches DOM when data really changed) ===== */
@@ -587,12 +588,25 @@ function renderCards(tabId,keep){
 }
 $(document).on('click','.more-btn',function(){const t=$(this).data('t');shown[t]=(shown[t]||30)+30;renderCards(t,true)});
 
+/* Mobile auto-fit: columns size to content (single line); if still wider than screen, shrink font until it fits */
+function autoFit(tabId){
+  if(!isMobile()) return;
+  const dt=tables[tabId]; if(!dt) return;
+  const tbl=dt.table().node(), box=dt.table().container();
+  if(!tbl.offsetParent) return;
+  tbl.style.fontSize='';
+  let fs=parseFloat(getComputedStyle(tbl).fontSize);
+  for(let i=0;i<4&&tbl.offsetWidth>box.clientWidth+1&&fs>8.5;i++){
+    fs=Math.max(8.5,fs*box.clientWidth/tbl.offsetWidth-0.2);
+    tbl.style.fontSize=fs+'px';
+  }
+}
 function applyView(tabId,keep){
   const on=cardsActive();
   document.body.classList.toggle('cards-on',on);
   const $w=$('#'+tabId).closest('.dataTables_wrapper'), w=$w.length?$w:$('#'+tabId);
   if(on){ w.css('display','none'); $('#'+tabId+'_cards').css('display','flex'); renderCards(tabId,keep); }
-  else { $('#'+tabId+'_cards').css('display','none'); w.css('display',''); if(tables[tabId]) tables[tabId].columns.adjust(); }
+  else { $('#'+tabId+'_cards').css('display','none'); w.css('display',''); if(tables[tabId]){ tables[tabId].columns.adjust(); autoFit(tabId); } }
 }
 
 /* ===== FROM / TO / ALL filters ===== */
