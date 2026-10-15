@@ -1,11 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://opensheet.elk.sh" crossorigin>
+<link rel="preconnect" href="https://cdn.datatables.net" crossorigin>
+<link rel="preconnect" href="https://code.jquery.com" crossorigin>
+<script>
+/* Settings fetch starts immediately (parallel with JS libs download) */
+window.__settingsP = fetch("https://opensheet.elk.sh/1-rBhct0Xohot_KX6bL4M9TQJ8QpzmtzEUexW4xHn2GI/Settings").then(r=>r.json()).catch(()=>null);
+</script>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#4a90e2">
 
-<meta charset="utf-8" />
 <title>🚘Transport Dashboard</title>
 
 <!-- DataTables CSS -->
@@ -27,7 +34,7 @@ header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 80px 14px 90px; /* ⬅️ left se 80px andar */
+  padding: 14px 24px;
   background: linear-gradient(90deg, var(--primary), var(--accent));
   color: #fff;
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
@@ -194,9 +201,6 @@ table.dataTable tbody tr:hover{background:rgba(0,140,186,0.06)}
     width:100% !important;
   }
 
-  .card-list{
-    display:none !important;
-  }
 
 }
 
@@ -227,6 +231,54 @@ table.dataTable tbody tr:hover{background:rgba(0,140,186,0.06)}
   }
 }
 
+
+/* ===== v102: cards, priority rows, mobile ===== */
+html{-webkit-text-size-adjust:100%}
+body{-webkit-tap-highlight-color:transparent}
+.prio-row{background:rgba(229,57,53,.14)!important;font-weight:500}
+.card-list{display:none;flex-direction:column;gap:10px}
+.mcard{background:var(--card);border:1px solid rgba(128,128,128,.25);border-left:4px solid var(--primary);border-radius:12px;padding:12px}
+.mcard.prio{border-left-color:#e53935;background:rgba(229,57,53,.10)}
+.mcard h4{margin:0 0 8px;font-size:16px;line-height:1.3;word-break:break-word}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px}
+.fld{min-width:0}.fld.wide{grid-column:1/-1}
+.fld span{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}
+.fld b{font-size:14px;font-weight:600;word-break:break-word}
+.fld.n{background:rgba(0,140,186,.13);padding:4px 6px;border-radius:6px}
+.fld.h{background:rgba(46,160,67,.15);padding:4px 6px;border-radius:6px}
+.cnt{font-size:12px;color:var(--muted);margin:0 2px 2px}
+.more-btn{background:var(--primary);color:#fff;width:100%;padding:12px}
+#searchAll{display:none}
+body.cards-on #searchAll{display:block}
+@media (min-width:761px){#cardToggle{display:none}}
+@media (max-width:760px){
+  header{padding:calc(10px + env(safe-area-inset-top,0px)) 12px 10px;gap:8px}
+  .header-left{min-width:0;flex:1;flex-direction:column;align-items:flex-start;gap:0}
+  #dashboardTitle{font-size:17px!important}
+  #dashboardSubtitle{font-size:12px!important}
+  .header-actions{margin-right:0;gap:8px;flex:none}
+  .switch{padding:6px 10px;font-size:13px}
+  .btn{padding:7px 10px;font-size:13px}
+  .container{margin:0;padding:8px}
+  .tabs-search-container{position:sticky;top:0;z-index:20;background:var(--bg);margin:0 -8px 8px;padding:8px;gap:8px;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+  .tabs{width:100%;gap:8px;-webkit-overflow-scrolling:touch}
+  .tabs button{flex:none;padding:8px 12px;font-size:14px;border-radius:12px}
+  .tabs button.active{font-size:14px}
+  .tabs button span.emoji{font-size:18px}
+  .tabs button.active span.emoji{transform:none}
+  .tabs button:hover{transform:none}
+  .controls{width:100%}
+  .search-box{width:100%;flex-wrap:wrap}
+  .search-box input{flex:1 1 40%;min-width:0;width:auto;padding:9px 12px;font-size:16px;border-radius:12px}
+  #searchAll{flex:1 1 100%}
+  .tab-content{padding:8px}
+  .dataTables_wrapper .dataTables_length{display:none}
+  .dataTables_wrapper .dataTables_filter{float:none;text-align:left;margin-bottom:6px}
+  .dataTables_wrapper .dataTables_filter input{width:calc(100% - 70px);font-size:16px}
+  .dataTables_wrapper .dataTables_info{float:none;text-align:center;padding-top:6px;font-size:12px;white-space:normal}
+  .dataTables_wrapper .dataTables_paginate{float:none;text-align:center}
+  .dataTables_scrollBody{max-height:65vh}
+}
 </style>
 </head>
 <body>
@@ -249,6 +301,7 @@ table.dataTable tbody tr:hover{background:rgba(0,140,186,0.06)}
       <div class="search-box" id="searchBox">
         <input type="text" id="searchFrom" placeholder="🔎 FROM">
         <input type="text" id="searchTo" placeholder="🔎 TO">
+        <input type="search" id="searchAll" placeholder="🔎 Search all">
       </div>
     </div>
   </div>
@@ -303,82 +356,12 @@ table.dataTable tbody tr:hover{background:rgba(0,140,186,0.06)}
 
 
 
-<!-- JS libs -->
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<!-- JS libs (defer = parallel download, no render blocking) -->
+<script defer src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script defer src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script defer src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
 
 <script>
-/* ========= 1️⃣ LOAD SETTINGS FROM GOOGLE SHEET ========= */
-const SETTINGS_SHEET_ID = "1-rBhct0Xohot_KX6bL4M9TQJ8QpzmtzEUexW4xHn2GI"; // fixed to access 'Settings'
-const SETTINGS_URL = `https://opensheet.elk.sh/${SETTINGS_SHEET_ID}/Settings`;
-
-let CONFIG = {
-  SHEET_ID: "",
-  SHEETS: [],
-  TITLE: "📊 Transport Dashboard",
-  SUBTITLE: "Freight Dashboard",
-  CACHE_DURATION: 3600000,
-  DEFAULT_MODE: "dark",
-  ICONS: {},
-  PAGE_LENGTH: 10   // default fallback
-};
-
-
-async function loadSettings() {
-  try {
-    const res = await fetch(SETTINGS_URL);
-    const data = await res.json();
-    data.forEach(row => {
-      if (!row.Key || !row.Value) return;
-      if (row.Key.startsWith("ICON_")) CONFIG.ICONS[row.Key.replace("ICON_", "")] = row.Value;
-      else if (row.Key === "SHEETS") CONFIG.SHEETS = row.Value.split(",").map(x=>x.trim()).filter(Boolean);
-      else CONFIG[row.Key] = row.Value;
-    });
-    console.log("✅ Settings loaded:", CONFIG);
-    applySettings();
-  } catch (e) {
-    console.error("⚠ Settings load failed", e);
-    document.getElementById("dashboardSubtitle").textContent = "⚠ Settings not found";
-  }
-}
-
-function applySettings(){
-  document.getElementById("dashboardTitle").textContent = CONFIG.TITLE || "📊 Dashboard";
-  document.getElementById("dashboardSubtitle").textContent = CONFIG.SUBTITLE || "";
-  if(CONFIG.DEFAULT_MODE === "light") document.documentElement.classList.remove("dark");
-}
-
-loadSettings();
-</script>
-<!-- ===== Part 2: Original JS logic (unchanged behavior) ===== -->
-<script>
-/* ===== derive data sheet id and helpers from CONFIG ===== */
-const DATA_SHEET_ID = CONFIG.SHEET_ID && CONFIG.SHEET_ID.trim() ? CONFIG.SHEET_ID.trim() : SETTINGS_SHEET_ID;
-const OPEN_SHEET_BASE = (sheetName) => `https://opensheet.elk.sh/${DATA_SHEET_ID}/${encodeURIComponent(sheetName)}`;
-let CACHE_TTL_MS = parseInt(CONFIG.CACHE_DURATION || 900000);
-const FETCH_TIMEOUT_MS = 12000; // small internal constant
-
-/* ===== State ===== */
-let highlightThreshold = {};
-let tables = {}; // DataTable instances keyed by tabId
-let rawDataCache = {}; // Raw JSON data keyed by sheetName
-let currentTab = null;
-let useCardView = false;
-
-let userActive = true;
-let lastActivity = Date.now();
-
-['click','mousemove','keydown','scroll','touchstart'].forEach(evt=>{
-  window.addEventListener(evt, ()=> {
-    userActive = true;
-    lastActivity = Date.now();
-  });
-});
-
-
-
-
 let deferredPrompt = null;
 
 // Install event capture
@@ -463,406 +446,236 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 
-/* ===== Helpers ===== */
-const now = ()=> Date.now();
-const cacheKey = (sheetName) => `sheet_cache__${sheetName}`;
-function saveToCache(sheetName, data){ try{ localStorage.setItem(cacheKey(sheetName), JSON.stringify({ts: now(), data})); }catch(e){ console.warn('cache save failed', e); } }
-function loadFromCache(sheetName){ try{ const raw = localStorage.getItem(cacheKey(sheetName)); if(!raw) return null; const obj = JSON.parse(raw); if(!obj.ts || !obj.data) return null; if(now() - obj.ts > CACHE_TTL_MS) return null; return obj.data; }catch(e){ return null; } }
+</script>
 
-function timeoutFetch(url, opts={}, timeout=FETCH_TIMEOUT_MS){ const controller = new AbortController(); const id = setTimeout(()=> controller.abort(), timeout); return fetch(url, {...opts, signal: controller.signal}).finally(()=> clearTimeout(id)); }
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+const SHEET_ID = "1-rBhct0Xohot_KX6bL4M9TQJ8QpzmtzEUexW4xHn2GI";
+const OPEN = s => `https://opensheet.elk.sh/${SHEET_ID}/${encodeURIComponent(s)}`;
+const CACHE_TTL = 3600000, LIVE_MS = 30000, TIMEOUT = 12000;
+const CONFIG = {SHEETS:[], TITLE:"📊 Transport Dashboard", SUBTITLE:"Freight Dashboard", DEFAULT_MODE:"dark", ICONS:{}, PAGE_LENGTH:10};
+const tables={}, rawStr={}, sigs={}, inflight={}, shown={};
+let currentTab=null;
+let useCards = localStorage.getItem('ui_cards')!==null ? localStorage.getItem('ui_cards')==='1' : true;
+const isMobile=()=>window.innerWidth<=760;
+const cardsActive=()=>isMobile() && useCards;
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const debounce=(fn,w=220)=>{let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),w)}};
+const tf=u=>{const c=new AbortController();const t=setTimeout(()=>c.abort(),TIMEOUT);return fetch(u,{signal:c.signal}).finally(()=>clearTimeout(t))};
+const cKey=n=>'sheet_cache__'+n;
+const saveC=(n,d)=>{try{localStorage.setItem(cKey(n),JSON.stringify({ts:Date.now(),data:d}))}catch(e){}};
+const loadC=n=>{try{const o=JSON.parse(localStorage.getItem(cKey(n)));return o&&Date.now()-o.ts<CACHE_TTL?o.data:null}catch(e){return null}};
 
-function debounce(fn, wait=250){ let t; return (...args)=>{ clearTimeout(t); t = setTimeout(()=> fn(...args), wait); } }
-
-/* ====== Thresholds (optional sheet) ====== */
-async function loadThresholds(){ try{
-  const res = await timeoutFetch(OPEN_SHEET_BASE('Threshold'));
-  const d = await res.json(); if(Array.isArray(d)) d.forEach(x=>{ if(x.Type && x.Threshold) highlightThreshold[x.Type.toLowerCase()] = parseFloat(x.Threshold)||0; });
-}catch(e){ console.info('Thresholds not loaded or missing'); }
-}
-
-/* ====== Utilities ====== */
-function normalizeRows(arr){
-  if(!arr || !arr.length) return { rows: [], keys: [] };
-
-  const keys = Object.keys(arr[0]).filter(k => k && k.trim() !== "");
-
-  const rows = arr.map(row => {
-    const obj = {};
-    keys.forEach(k => obj[k] = row[k] ?? "");
-    return obj;
+/* ===== Settings (cached → instant on repeat visits) ===== */
+function applySettings(rows){
+  (rows||[]).forEach(r=>{
+    if(!r.Key||!r.Value) return;
+    if(r.Key.startsWith('ICON_')) CONFIG.ICONS[r.Key.slice(5)]=r.Value;
+    else if(r.Key==='SHEETS') CONFIG.SHEETS=r.Value.split(',').map(x=>x.trim()).filter(Boolean);
+    else CONFIG[r.Key]=r.Value;
   });
-
-  return { rows, keys };
+  $('#dashboardTitle').text(CONFIG.TITLE||'📊 Dashboard');
+  $('#dashboardSubtitle').text(CONFIG.SUBTITLE||'');
+}
+async function loadSettings(){
+  let cached=null; try{cached=JSON.parse(localStorage.getItem('settings_cache'))}catch(e){}
+  const fresh=window.__settingsP||Promise.resolve(null);
+  const save=d=>{if(Array.isArray(d)){try{localStorage.setItem('settings_cache',JSON.stringify(d))}catch(e){}return true}return false};
+  if(Array.isArray(cached)){ applySettings(cached); fresh.then(d=>{if(save(d))applySettings(d)}); }
+  else { const d=await fresh; if(save(d)) applySettings(d); else $('#dashboardSubtitle').text('⚠ Settings not found'); }
 }
 
-function buildGenericTable($table, data, sheetName){
-
-  const { rows, keys } = normalizeRows(data);
-  const tableId = $table.attr("id");
-
-// केवल Remark/WK column को priority दें
-const remarkKey = keys.find(k =>
-  k.trim().toLowerCase() === "remark" ||
-  k.trim().toLowerCase() === "wk"
-);
-
-const enhanced = rows.map(r => ({
-  ...r,
-  __priority: remarkKey && String(r[remarkKey] || "").trim() !== "" ? 1 : 0
-}));
-
-  // ✅ NORMAL COLUMNS (ALL VISIBLE)
-// show header immediately
-if(!$table.find('thead').length){
-  const thead = $('<thead><tr></tr></thead>');
-  keys.forEach(k=>{
-    thead.find('tr').append(`<th>${k}</th>`);
+/* ===== Data helpers ===== */
+function norm(arr){
+  if(!Array.isArray(arr)||!arr.length) return {rows:[],keys:[]};
+  const keys=Object.keys(arr[0]).filter(k=>k&&k.trim()!=='');
+  return {keys, rows:arr.map(r=>{const o={};keys.forEach(k=>o[k]=r[k]??'');return o})};
+}
+function enhance(rows,keys){
+  const rk=keys.find(k=>['remark','wk'].includes(k.trim().toLowerCase()));
+  return rows.map(r=>({...r,__priority: rk&&String(r[rk]||'').trim()!==''?1:0}));
+}
+function buildGeneric($t,rows,keys,tabId){
+  if($.fn.DataTable.isDataTable($t)) $t.DataTable().destroy();
+  $t.empty().show();
+  const dt=$t.DataTable({
+    deferRender:true, pagingType:'simple', data:enhance(rows,keys),
+    columns:[{data:'__priority',visible:false},...keys.map(k=>({title:k,data:k}))],
+    orderMulti:false, orderFixed:{pre:[[0,'desc']]}, order:[[1,'asc']],
+    pageLength:parseInt(CONFIG.PAGE_LENGTH)||10,
+    responsive:false, scrollX:true, autoWidth:false,
+    createdRow:(row,d)=>{ if(d.__priority===1) $(row).addClass('prio-row'); }
   });
-  $table.append(thead);
+  tables[tabId]=dt;
 }
-  const cols = keys.map(k => ({
-    title: k,
-    data: k,
-    visible: true
-  }));
-
-  if ($.fn.DataTable.isDataTable($table)) {
-    $table.DataTable().clear().destroy();
-  }
-  $table.empty();
-
- const dt = $table.DataTable({
-    deferRender: true,
-pagingType: "simple",
-    processing: true,
-    data: enhanced,
-    columns: [
-      { data: "__priority", visible: false },
-      ...cols
-    ],
-    ordering: true,
-    orderMulti: false,
-    orderFixed: { pre: [[0, "desc"]] },
-    order: [[1, "asc"]],
-    pageLength: parseInt(CONFIG.PAGE_LENGTH) || 10,
-
-    // ✅ मोबाइल में सभी columns दिखाने के लिए
-    responsive: false,  // ❌ अब columns hide नहीं होंगे
-    scrollX: true,      // ✅ horizontal scroll enable
-    autoWidth: false,   // ✅ table width auto adjust
-
-    createdRow: function(row, rowData){
-      if(rowData.__priority === 1){
-        $(row).css({ background: "#ffe6e6", fontWeight: "500", fontSize: "14px" });
-      }
-    },
-    initComplete: function(){
-      tables[tableId] = this.api();
-    }
-});
-
-
-  rawDataCache[sheetName] = rows;
-  return dt;
+function updateGeneric(dt,rows,keys){ dt.clear(); dt.rows.add(enhance(rows,keys)); dt.draw(false); }
+function buildCalc($t,rows,keys,tabId){
+  if($.fn.DataTable.isDataTable($t)) try{$t.DataTable().destroy()}catch(e){}
+  $t.empty().show();
+  const nk=keys.slice(0,4), hk=keys.slice(4,8), $th=$('<thead/>');
+  $th.append(`<tr><th class="normal-route" colspan="${nk.length}">Normal Route</th><th class="hilly-route" colspan="${hk.length}">Hilly / Ghat Route</th></tr>`);
+  const hr=$('<tr/>');
+  nk.forEach(k=>hr.append(`<th class="normal-route">${esc(k)}</th>`));
+  hk.forEach(k=>hr.append(`<th class="hilly-route">${esc(k)}</th>`));
+  $th.append(hr); $t.append($th);
+  tables[tabId]=$t.DataTable({data:rows,columns:keys.map(k=>({title:k,data:k})),destroy:true,responsive:true,pageLength:15,order:[[5,'asc']],
+    createdRow:row=>{$(row).find('td:lt(4)').addClass('normal-route');$(row).find('td:gt(3)').addClass('hilly-route')}});
 }
 
-async function fastReload(sheetName){
-
-  const tabId = 'table_' + sheetName.toLowerCase();
-  const table = tables[tabId];
-  if(!table) return;
-
+/* ===== Apply data (only touches DOM when data really changed) ===== */
+function applyData(sheet,data,flash){
+  if(!Array.isArray(data)) return false;
+  const str=JSON.stringify(data); if(str===rawStr[sheet]) return false;
+  const tabId='table_'+sheet.toLowerCase(), $t=$('#'+tabId), had=rawStr[sheet]!==undefined;
+  const {rows,keys}=norm(data), sig=keys.join('|');
+  rawStr[sheet]=str;
+  if(!keys.length){ $('#'+tabId+'_placeholder').html('<div class="placeholder">No data</div>').show(); return true; }
+  if(sheet==='Calculation') buildCalc($t,rows,keys,tabId);
+  else if(tables[tabId]&&sigs[tabId]===sig) updateGeneric(tables[tabId],rows,keys);
+  else buildGeneric($t,rows,keys,tabId);
+  sigs[tabId]=sig;
+  $('#'+tabId+'_placeholder').hide();
+  applyView(tabId,true);
+  if(flash&&had){ const n=$(tables[tabId].rows().nodes()); n.addClass('row-flash'); setTimeout(()=>n.removeClass('row-flash'),1000); }
+  return true;
+}
+async function fetchSheet(sheet,bust){
+  if(inflight[sheet]) return true; inflight[sheet]=1;
   try{
-
-    const res = await timeoutFetch(
-      OPEN_SHEET_BASE(sheetName) + '?_=' + Date.now()
-    );
-
-    const data = await res.json();
-    if(!Array.isArray(data)) return;
-
-    const { rows, keys } = normalizeRows(data);
-
-    // ===== Smart Update =====
-    const newData = JSON.stringify(rows);
-    const oldData = JSON.stringify(rawDataCache[sheetName] || []);
-
-    if(newData === oldData){
-      return;   // Nothing changed
-    }
-
-    // ===== Find Remark/WK column =====
-    const remarkKey = keys.find(k =>
-      ["remark","wk"].includes(k.trim().toLowerCase())
-    );
-
-    // ===== Find Update Time =====
-    const timeKey = keys.find(k =>
-      k.toLowerCase().includes("update") ||
-      k.toLowerCase().includes("time") ||
-      k.toLowerCase().includes("date")
-    );
-
-    const enhanced = rows.map(r => ({
-      ...r,
-      __priority: remarkKey
-          ? String(r[remarkKey] || "").trim() !== "" ? 1 : 0
-          : 0,
-
-      __updated: timeKey && r[timeKey]
-          ? new Date(r[timeKey]).getTime() || 0
-          : 0
-    }));
-
-    // ===== Save current table state =====
-
-    const currentPage = table.page();
-
-    const globalSearch = table.search();
-
-    const columnSearch = [];
-
-    table.columns().every(function(i){
-      columnSearch[i] = this.search();
-    });
-
-    const scrollBody = $(table.table().container())
-      .find(".dataTables_scrollBody");
-
-    const scrollTop = scrollBody.scrollTop();
-    const scrollLeft = scrollBody.scrollLeft();
-
-    // ===== Update only data =====
-
-    table.clear();
-    table.rows.add(enhanced);
-    table.columns.adjust();
-    table.draw(false);
-
-    // Restore search
-    table.search(globalSearch);
-
-    table.columns().every(function(i){
-      this.search(columnSearch[i]);
-    });
-
-    // Restore page
-    table.page(currentPage).draw(false);
-
-    // Restore scroll
-    scrollBody.scrollTop(scrollTop);
-    scrollBody.scrollLeft(scrollLeft);
-
-    // ===== Flash changed rows =====
-
-    $(table.rows().nodes()).addClass("row-flash");
-
-    setTimeout(()=>{
-      $(table.rows().nodes()).removeClass("row-flash");
-    },1000);
-
-    rawDataCache[sheetName] = rows;
-    saveToCache(sheetName, rows);
-
-  }
-  catch(e){
-    console.warn("Live reload failed:", sheetName, e);
-  }
-
+    const r=await tf(OPEN(sheet)+(bust?'?_='+Date.now():'')); const d=await r.json();
+    if(!Array.isArray(d)) throw new Error('bad response');
+    if(applyData(sheet,d,true)) saveC(sheet,d);
+    return true;
+  }catch(e){ console.warn('fetch failed',sheet,e); return false; }
+  finally{ inflight[sheet]=0; }
+}
+async function loadSheet(sheet){
+  const c=loadC(sheet); if(c) applyData(sheet,c,false);
+  const ok=await fetchSheet(sheet,false);
+  if(!ok&&!c) $('#table_'+sheet.toLowerCase()+'_placeholder').html(`<div style="color:var(--muted)">⚠ Unable to load ${esc(sheet)}. Please check network or sheet.</div>`);
 }
 
+/* ===== Card view (mobile) – follows table search / sort / filters ===== */
+const findCol=(keys,name)=>{let i=keys.findIndex(k=>k.trim().toLowerCase()===name);return i>=0?i:keys.findIndex(k=>k.toLowerCase().includes(name))};
+function renderCards(tabId,keep){
+  const el=document.getElementById(tabId+'_cards'), dt=tables[tabId]; if(!el||!dt) return;
+  if(!keep) shown[tabId]=30;
+  const sheet=$('#'+tabId+'_container').data('sheet');
+  const rows=dt.rows({search:'applied',order:'applied'}).data().toArray();
+  if(!rows.length){ el.innerHTML='<div class="placeholder">No data</div>'; return; }
+  const keys=Object.keys(rows[0]).filter(k=>!k.startsWith('__'));
+  const fi=findCol(keys,'from'), ti=findCol(keys,'to'), ft=fi>=0&&ti>=0&&fi!==ti&&sheet!=='Calculation';
+  const card=r=>{
+    const title=ft?`${esc(r[keys[fi]])} → ${esc(r[keys[ti]])}`:esc(r[keys[0]]);
+    const f=keys.map((k,i)=>({k,i})).filter(o=>(ft?(o.i!==fi&&o.i!==ti):o.i!==0)&&String(r[o.k]??'').trim()!=='');
+    const grp=sheet==='Calculation'?(i=>i<4?' n':' h'):()=>'';
+    return `<div class="mcard${r.__priority===1?' prio':''}"><h4>${title}</h4><div class="fgrid">`+
+      f.map(o=>`<div class="fld${String(r[o.k]).length>28?' wide':''}${grp(o.i)}"><span>${esc(o.k)}</span><b>${esc(r[o.k])}</b></div>`).join('')+`</div></div>`;
+  };
+  const n=shown[tabId]||30;
+  el.innerHTML=`<div class="cnt">${rows.length} results</div>`+rows.slice(0,n).map(card).join('')+
+    (rows.length>n?`<button class="btn more-btn" data-t="${tabId}">Show more (${rows.length-n} left)</button>`:'');
+}
+$(document).on('click','.more-btn',function(){const t=$(this).data('t');shown[t]=(shown[t]||30)+30;renderCards(t,true)});
 
-
-function buildCalculationTable($table, data, sheetName){ const { rows, keys } = normalizeRows(data);
-  if(keys.length === 0){ $table.html('<div class="placeholder">⚠ Calculation sheet empty</div>'); return; }
-  if($.fn.DataTable.isDataTable($table)) try{$table.DataTable().destroy();}catch(e){}
-  $table.empty();
-
-  // custom thead grouping
-  const normalKeys = keys.slice(0,4);
-  const hillyKeys = keys.slice(4,8);
-  const $thead = $('<thead/>');
-  $thead.append(`<tr><th class="normal-route" colspan="${normalKeys.length}">Normal Route</th><th class="hilly-route" colspan="${hillyKeys.length}">Hilly / Ghat Route</th></tr>`);
-  const headerRow = $('<tr/>');
-  normalKeys.forEach(k=> headerRow.append(`<th class="normal-route">${k}</th>`));
-  hillyKeys.forEach(k=> headerRow.append(`<th class="hilly-route">${k}</th>`));
-  $thead.append(headerRow); $table.append($thead);
-
-  const dt = $table.DataTable({ data: rows, columns: keys.map(k=>({ title:k, data:k })), destroy:true, responsive:true, pageLength:15, order:[[5,'asc']], createdRow: function(row){ $(row).find('td:lt(4)').addClass('normal-route'); $(row).find('td:gt(3)').addClass('hilly-route'); }, initComplete: function(){ tables[$table.attr('id')] = this.api(); } });
-  rawDataCache[sheetName] = rows; return dt;
+function applyView(tabId,keep){
+  const on=cardsActive();
+  document.body.classList.toggle('cards-on',on);
+  const $w=$('#'+tabId).closest('.dataTables_wrapper'), w=$w.length?$w:$('#'+tabId);
+  if(on){ w.css('display','none'); $('#'+tabId+'_cards').css('display','flex'); renderCards(tabId,keep); }
+  else { $('#'+tabId+'_cards').css('display','none'); w.css('display',''); if(tables[tabId]) tables[tabId].columns.adjust(); }
 }
 
-/* ====== Cards (mobile) ====== */
-function renderCardsForSheet(sheetName){ const data = rawDataCache[sheetName]; const container = document.getElementById(''+ 'table_' + sheetName.toLowerCase() + '_cards'.replace('table_','').replace('_cards','') ) ; 
-  // Note: original id for cards earlier was '#<tabId>_cards' where tabId = 'table_'+name.toLowerCase()
-  // We'll compute correct id:
-  const cardContainer = document.getElementById('table_' + sheetName.toLowerCase() + '_cards');
-  if(!cardContainer) return;
-  const containerEl = cardContainer;
-  containerEl.innerHTML = '';
-  if(!data || !data.length){ containerEl.innerHTML = '<div class="placeholder">No data for card view</div>'; return; }
-  const keys = Object.keys(data[0]); data.forEach(row=>{ const c = document.createElement('div'); c.className='card'; const titleKey = keys[0]||''; const html = `<h4>${row[titleKey]?? ''}</h4>` + keys.slice(1,5).map(k=>`<p><strong>${k}:</strong> ${row[k]?? ''}</p>`).join(''); c.innerHTML = html; containerEl.appendChild(c); }); }
+/* ===== FROM / TO / ALL filters ===== */
+function colIdx(dt,name){const cols=dt.settings().init().columns||[];let i=cols.findIndex(c=>(c.title||'').trim().toLowerCase()===name);return i>=0?i:cols.findIndex(c=>(c.title||'').toLowerCase().includes(name))}
+function applyFilters(){
+  const dt=tables[currentTab]; if(!dt) return;
+  dt.columns().search('');
+  const i=colIdx(dt,'from'), j=colIdx(dt,'to');
+  if(i>=0) dt.column(i).search($('#searchFrom').val().trim());
+  if(j>=0) dt.column(j).search($('#searchTo').val().trim());
+  if(cardsActive()) dt.search($('#searchAll').val().trim());
+  dt.draw();
+  if(cardsActive()) renderCards(currentTab);
+}
+$('#searchFrom,#searchTo,#searchAll').on('input',debounce(applyFilters));
+function updateSearchBox(){
+  const ft=!!currentTab&&/tanker|truck|others/.test(currentTab);
+  $('#searchFrom,#searchTo').toggle(ft);
+  $('#searchBox').css('display',(ft||cardsActive())?'flex':'none');
+  $('#searchFrom,#searchTo,#searchAll').val('');
+}
+function setMode(dark){
+  document.documentElement.classList.toggle('dark',dark);
+  localStorage.setItem('ui_mode',dark?'dark':'light');
+  $('#modeLabel').text(dark?'Dark':'Light');
+}
+const setToggleLabel=()=>$('#cardToggle').text(useCards?'Table View':'Card View');
 
-/* ====== FROM/TO filter logic (debounced) ====== */
-function filterFromTo(){ if(!currentTab || !tables[currentTab]) return; const qFrom = $('#searchFrom').val().trim(); const qTo = $('#searchTo').val().trim(); const dt = tables[currentTab]; const cols = dt.settings().init().columns || []; const idxFrom = cols.findIndex(c=> (c.title||'').toLowerCase().includes('from'));
-  const idxTo = cols.findIndex(c=> (c.title||'').toLowerCase().includes('to'));
-  dt.columns().search(''); if(idxFrom>=0) dt.column(idxFrom).search(qFrom); if(idxTo>=0) dt.column(idxTo).search(qTo); dt.draw(); }
-
-const debouncedFilter = debounce(filterFromTo, 220);
-$('#searchFrom,#searchTo').on('keyup', debouncedFilter);
-
-/* ====== UI skeleton & tab creation ====== */
+/* ===== UI ===== */
 async function initUI(){
-  const tabsContainer = $('#tabsContainer'); const tabsContent = $('#tabsContent');
-  let tabNames = [];
-
-  // prefer CONFIG.SHEETS (comma separated). If empty, try Index sheet (backwards compatibility)
-  if(CONFIG.SHEETS && Array.isArray(CONFIG.SHEETS) && CONFIG.SHEETS.length > 0){
-    tabNames = CONFIG.SHEETS;
-  } else {
-    try{
-      const res = await timeoutFetch(OPEN_SHEET_BASE('Index'));
-      const idx = await res.json(); tabNames = Array.isArray(idx) ? idx.map(r=> r.SheetName).filter(Boolean) : [];
-    }catch(e){
-      console.warn('Index sheet failed — using default set');
-      tabNames = ['Calculation','Tanker','Truck','Tempo','Others'];
-    }
+  const tabsC=$('#tabsContainer'), tabsB=$('#tabsContent');
+  let names=CONFIG.SHEETS.slice();
+  if(!names.length){
+    try{ const r=await tf(OPEN('Index')); const d=await r.json(); names=Array.isArray(d)?d.map(x=>x.SheetName).filter(Boolean):[]; }catch(e){}
   }
-
-  // Create tabs and placeholders
-  tabNames.forEach((sheetName,i)=>{
-    const tabId = 'table_' + sheetName.toLowerCase();
-    const emoji = (CONFIG.ICONS && CONFIG.ICONS[sheetName]) || (sheetName==='Calculation'?'🧮':sheetName==='Tanker'?'🚛':sheetName==='Truck'?'🚚':sheetName==='Tempo'?'🛻':'📦');
-    tabsContainer.append(`<button class="tab-btn" data-tab="${tabId}"><span class="emoji">${emoji}</span> ${sheetName}</button>`);
-
-    tabsContent.append(`
-      <div id="${tabId}_container" class="tab-content" data-sheet="${sheetName}">
-        <div id="${tabId}_placeholder" class="placeholder"><div style="text-align:center"><div class="spinner"></div><div style="margin-top:10px;color:var(--muted)">Loading ${sheetName}...</div></div></div>
-        <div id="${tabId}_cards" class="card-list" style="margin-bottom:8px;display:none"></div>
-        <table id="${tabId}" class="display nowrap" style="width:100%;display:none"></table>
-      </div>
-    `);
+  if(!names.length) names=['Calculation','Tanker','Truck','Tempo','Others'];
+  names.forEach(sheet=>{
+    const id='table_'+sheet.toLowerCase();
+    const emoji=(CONFIG.ICONS&&CONFIG.ICONS[sheet])||(sheet==='Calculation'?'🧮':sheet==='Tanker'?'🚛':sheet==='Truck'?'🚚':sheet==='Tempo'?'🛻':'📦');
+    tabsC.append(`<button class="tab-btn" data-tab="${id}"><span class="emoji">${emoji}</span> ${esc(sheet)}</button>`);
+    tabsB.append(`<div id="${id}_container" class="tab-content" data-sheet="${esc(sheet)}">
+      <div id="${id}_placeholder" class="placeholder"><div style="text-align:center"><div class="spinner"></div><div style="margin-top:10px;color:var(--muted)">Loading ${esc(sheet)}...</div></div></div>
+      <div id="${id}_cards" class="card-list"></div>
+      <table id="${id}" class="display nowrap" style="width:100%;display:none"></table></div>`);
   });
+  $('.tab-btn').first().addClass('active'); $('.tab-content').first().addClass('active');
+  currentTab=$('.tab-btn').first().data('tab');
+  setMode((localStorage.getItem('ui_mode')||CONFIG.DEFAULT_MODE||'dark')==='dark');
+  setToggleLabel(); updateSearchBox();
 
-  // activate first tab
-  $('.tab-btn').first().addClass('active'); $('.tab-content').first().addClass('active'); currentTab = $('.tab-btn').first().data('tab'); updateSearchBox();
+  $('.tab-btn').on('click',function(){
+    $('.tab-btn').removeClass('active'); $(this).addClass('active');
+    $('.tab-content').removeClass('active');
+    const id=$(this).data('tab'); $('#'+id+'_container').addClass('active');
+    currentTab=id;
+    const sheet=$('#'+id+'_container').data('sheet');
+    if(rawStr[sheet]===undefined&&!inflight[sheet]) loadSheet(sheet);
+    updateSearchBox(); applyView(id); applyFilters();
+    this.scrollIntoView({inline:'center',block:'nearest',behavior:'smooth'});
+  });
+  $('#modeToggle').on('click',()=>setMode(localStorage.getItem('ui_mode')!=='dark'));
+  $('#cardToggle').on('click',()=>{
+    useCards=!useCards; localStorage.setItem('ui_cards',useCards?'1':'0'); setToggleLabel();
+    if(!useCards) Object.values(tables).forEach(d=>d.search('').draw(false));
+    updateSearchBox(); applyView(currentTab);
+  });
+  let lastMobile=isMobile();
+  window.addEventListener('resize',debounce(()=>{
+    if(isMobile()===lastMobile) return; lastMobile=isMobile();
+    updateSearchBox(); applyView(currentTab);
+  },150));
 
-  // tab click handler
-$('.tab-btn').on('click', function(){
+  const first=names[0];
+  await loadSheet(first);
+  if(names.includes('Tanker')&&first!=='Tanker') loadSheet('Tanker');
+}
 
-  $('.tab-btn').removeClass('active');
-  $(this).addClass('active');
+/* ===== Live refresh: only visible tab, only when page is open ===== */
+function liveRefresh(){
+  if(document.hidden||!currentTab) return;
+  const sheet=$('#'+currentTab+'_container').data('sheet');
+  if(sheet&&rawStr[sheet]!==undefined) fetchSheet(sheet,true);
+}
+setInterval(liveRefresh,LIVE_MS);
+document.addEventListener('visibilitychange',liveRefresh);
 
-  $('.tab-content').removeClass('active');
-
-  const tabId = $(this).data('tab');
-  $('#' + tabId + '_container').addClass('active');
-
-  currentTab = tabId;
-
-  const sheetName = $('#' + tabId + '_container').data('sheet');
-
-  // ✅ Load only if not already loaded
-  if(!rawDataCache[sheetName]){
-    loadSheetToDom(sheetName);
-  }
-
-  updateSearchBox();
-  filterFromTo();
-  toggleCardListVisibilityFor(tabId);
+loadSettings().then(initUI);
 });
-
-
-  // header controls
-  document.getElementById('modeToggle').addEventListener('click', function(){ const cur = localStorage.getItem('ui_mode') === 'dark'; setMode(!cur); });
-  document.getElementById('cardToggle').addEventListener('click', function(){ useCardView = !useCardView; this.innerHTML = useCardView ? 'Table View' : 'Card View'; toggleCardListsGlobally(); });
-
-  // export CSV (kept simple)
-  try{
-    document.getElementById('exportCsvBtn')?.addEventListener('click', ()=> exportVisibleTableCsv());
-  }catch(e){ /* ignore if not present in this template */ }
-
-  // restore ui mode
-  const storedMode = localStorage.getItem('ui_mode') || CONFIG.DEFAULT_MODE || 'dark'; setMode(storedMode === 'dark');
-
-  // start
-  await loadThresholds(); // optional
-  await parallelLoadSheetsLazy();
-}
-
-/* ====== Toggle card lists & visibility ====== */
-function toggleCardListVisibilityFor(tabId){ const sheetName = $('#' + tabId + '_container').data('sheet'); const tableEl = $('#' + tabId); const cardContainer = $('#'+tabId+'_cards'); if(window.innerWidth <= 760 && useCardView){ cardContainer.show(); tableEl.hide(); renderCardsForSheet(sheetName); } else { cardContainer.hide(); tableEl.show(); } }
-function toggleCardListsGlobally(){ $('.tab-content').each(function(){ const tabId = $(this).attr('id').replace('_container',''); toggleCardListVisibilityFor(tabId); }); }
-
-/* ====== Parallel load with lazy init (only load visible tab immediately, others lazy) ====== */
-async function parallelLoadSheetsLazy(){
-
-  const sheetNames = [];
-  $('#tabsContent .tab-content').each(function(){
-    sheetNames.push($(this).data('sheet'));
-  });
-
-  // First tab load
-  const first = sheetNames[0];
-  if(first){
-    await loadSheetToDom(first);
-  }
-
-  // ✅ Tanker tab bhi preload karo
-  if(sheetNames.includes("Tanker")){
-    loadSheetToDom("Tanker");
-  }
-
-  console.log("🚀 Turbo Mode: First + Tanker preloaded");
-  toggleCardListVisibilityFor(currentTab);
-}
-
-async function loadSheetToDom(sheetName){ const tabId = 'table_' + sheetName.toLowerCase(); const $placeholder = $('#' + tabId + '_placeholder'); const $table = $('#' + tabId); const cached = loadFromCache(sheetName);
-  if(cached){ try{ if(sheetName === 'Calculation'){ buildCalculationTable($table, cached, sheetName); } else { buildGenericTable($table, cached, sheetName); } $table.show(); $placeholder.hide(); renderCardsForSheet(sheetName); }catch(e){ console.warn('cached render failed', e); }
-  }
-
-  try{ const res = await timeoutFetch(OPEN_SHEET_BASE(sheetName)); const fresh = await res.json(); const freshStr = JSON.stringify(fresh || []); const cachedStr = JSON.stringify(cached || []);
-   if(true){ if(sheetName === 'Calculation'){ buildCalculationTable($table, fresh, sheetName); } else { buildGenericTable($table, fresh, sheetName); } $table.find('tbody tr').addClass('row-flash'); setTimeout(()=> $table.find('tbody tr').removeClass('row-flash'), 1200); renderCardsForSheet(sheetName); saveToCache(sheetName, fresh);
-    }
-    $table.show(); $placeholder.hide();
-  }catch(err){ console.error('fetch failed for', sheetName, err); if(!cached){ $placeholder.html(`<div style="color:var(--muted)">⚠ Unable to load ${sheetName}. Please check network or sheet.</div>`); } else { $table.show(); $placeholder.hide(); } }
-}
-
-/* ====== Searchbox show/hide logic ====== */
-function updateSearchBox(){ const show = currentTab && (currentTab.includes('tanker') || currentTab.includes('truck') || currentTab.includes('others')); $('#searchBox').css('display', show ? 'flex' : 'none'); $('#searchFrom,#searchTo').val(''); }
-
-/* ====== Mode switch ====== */
-function setMode(dark){ if(dark){ document.documentElement.classList.add('dark'); localStorage.setItem('ui_mode','dark'); document.getElementById('modeLabel').textContent='Dark'; } else { document.documentElement.classList.remove('dark'); localStorage.setItem('ui_mode','light'); document.getElementById('modeLabel').textContent='Light'; } }
-
-/* ====== CSV export (simple) ====== */
-function exportVisibleTableCsv(){ if(!currentTab || !tables[currentTab]) return alert('No table visible to export'); const dt = tables[currentTab]; const data = dt.rows({search:'applied'}).data().toArray(); if(!data.length) return alert('No rows to export'); const keys = Object.keys(data[0]).filter(k=> !k.startsWith('__'));
-  const csv = [keys.join(','), ...data.map(r=> keys.map(k=> `"${String(r[k] ?? '').replace(/"/g,'""')}"`).join(','))].join('\n'); const blob = new Blob([csv], {type:'text/csv'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `${currentTab.replace('table_','')}_export.csv`; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); }
-
-const LIVE_REFRESH_MS = 3000; // 10 sec – smooth & safe
-
-setInterval(() => {
-
-  if(!currentTab) return;
-
-  const sheetName = $('#' + currentTab + '_container').data('sheet');
-
-  if(sheetName){
-    fastReload(sheetName);
-  }
-
-}, LIVE_REFRESH_MS);
-
-
-
-
-
-/* ====== Boot ====== */
-$(function(){ initUI(); window.addEventListener('resize', ()=> toggleCardListsGlobally()); });
 </script>
 <script>
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js')
-    .then(() => console.log("Service Worker Registered"));
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js'));
 }
 </script>
 </body>
